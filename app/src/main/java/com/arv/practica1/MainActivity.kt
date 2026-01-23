@@ -19,7 +19,7 @@ import com.arv.practica1.ui.theme.Tema4_Practica1Theme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val apiKey = "59982d58c63f49a9b0bf576f98418c2f"
+        val apiKey = BuildConfig.NEWS_API_KEY
         setContent {
             Tema4_Practica1Theme {
                 val viewModel: NewsViewModel= viewModel()

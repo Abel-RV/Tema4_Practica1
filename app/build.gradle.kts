@@ -7,13 +7,18 @@ plugins {
 }
 
 android {
-    val newsApiKey = project.findProperty("NEWS_API_KEY") as String? ?: ""
+    val newsApiKey = providers.fileContents(layout.projectDirectory.file("local.properties"))
+        .asText
+        .map { props ->
+            Regex("NEWS_API_KEY=(.*)").find(props)?.groupValues?.get(1) ?: ""
+        }
+        .orElse("")
 
-    namespace = "com.example.noticiasofflinefirst"
+    namespace = "com.arv.practica1"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.noticiasofflinefirst"
+        applicationId = "com.arv.practica1"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -29,6 +34,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String","NEWS_API_KEY","\"${newsApiKey.get()}")
+        }
+        debug {
+            buildConfigField("String","NEWS_API_KEY","\"${newsApiKey.get()}")
         }
     }
     compileOptions {
