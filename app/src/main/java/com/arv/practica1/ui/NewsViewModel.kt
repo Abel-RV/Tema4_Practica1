@@ -32,7 +32,7 @@ class NewsViewModel(application: Application): AndroidViewModel(application){
     private val _categoria = MutableStateFlow("")
     val categoria = _categoria.asStateFlow()
 
-    private val _pais = MutableStateFlow("us")
+    private val _pais = MutableStateFlow("es")
     val pais = _pais.asStateFlow()
 
     private val _fuente = MutableStateFlow("")

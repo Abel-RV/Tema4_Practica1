@@ -50,11 +50,16 @@ class NewsRepository(
                 q = qParam
 
             )
-            println("Llamada exitosa. Status: ${response.status}, Total: ${response.totalResults}")
-            println("Primer artículo: ${response.articles.firstOrNull()?.titulo}")
-            if (response.status != "ok" || response.articles.isEmpty()) {
-                throw Exception("Respuesta vacía: status=${response.status}, total=${response.totalResults}")
+
+            if(response.status=="ok"&& response.articles.isEmpty()){
+                return emptyList();
             }
+
+            if(response.status!="ok"){
+                throw Exception("Error")
+            }
+
+
             val noticiasSanitizadas = response.articles.map { noticia ->
                 noticia.copy(
                     url = noticia.url.trim(),
