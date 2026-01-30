@@ -24,12 +24,14 @@ class NewsRepository(
             val sourceParam = if (hasSource) sources else null
             val countryParam = if(hasSource) null else country?.ifBlank { null }
             val categoryParam = if ( hasSource) null else category?.ifBlank { null }
+            val languageParam = if(hasSource) null else language?.ifBlank { null }
             val qParam= q?.ifBlank { null }
             val response = apiService.getTopHeadlines(
                 apiKey = apiKey,
                 sources = sourceParam,
                 country = countryParam,
                 category = categoryParam,
+                language = languageParam,
                 q = qParam
 
             )

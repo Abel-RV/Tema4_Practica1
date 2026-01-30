@@ -98,6 +98,13 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
                         enabled = habilitarResto,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    OutlinedTextField(
+                        value = idioma,
+                        onValueChange = { viewModel.actualizarFiltros(busqueda, fuente, categoria, pais, it) },
+                        label = { Text("Idioma (ej: es, en)") },
+                        enabled = habilitarResto,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     OutlinedTextField(
                         value = categoria,
