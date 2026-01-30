@@ -4,6 +4,7 @@ package com.arv.practica1.network
 
 import retrofit2.http.Query
 import com.arv.practica1.model.NewsResponse
+import org.intellij.lang.annotations.Language
 import retrofit2.http.GET
 import java.util.Locale
 
@@ -14,6 +15,7 @@ interface NewsApiService {
         @Query("sources") sources: String? = null,
         @Query("country") country: String? = null,
         @Query("category") category: String? = null,
+        @Query("language") language: String? = null,
         @Query("q") q: String? = null
     ): NewsResponse
 }

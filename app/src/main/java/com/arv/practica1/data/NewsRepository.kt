@@ -5,6 +5,7 @@ import com.arv.practica1.model.Noticia
 import com.arv.practica1.network.NewsApiService
 import kotlinx.coroutines.flow.first
 import okio.Source
+import org.intellij.lang.annotations.Language
 
 class NewsRepository(
     private val apiService: NewsApiService,
@@ -15,33 +16,15 @@ class NewsRepository(
         sources: String? = null,
         country: String? = null,
         category: String? = null,
+        language: String? = null,
         q: String? = null
     ): List<Noticia> {
         return try {
-            val sourceParam = if(!sources.isNullOrBlank()){
-                sources
-            } else {
-                null
-            }
-
-            val countryParam = if(sourceParam==null&& !country.isNullOrBlank()){
-                country
-            }else{
-                null
-            }
-
-            val categoryParam = if(sourceParam==null&&!category.isNullOrBlank()){
-                category
-            }else{
-                null
-            }
-
-            val qParam = if(!q.isNullOrBlank()){
-                q
-            }else{
-                null
-            }
-
+            val hasSource = !sources.isNullOrBlank()
+            val sourceParam = if (hasSource) sources else null
+            val countryParam = if(hasSource) null else country?.ifBlank { null }
+            val categoryParam = if ( hasSource) null else category?.ifBlank { null }
+            val qParam= q?.ifBlank { null }
             val response = apiService.getTopHeadlines(
                 apiKey = apiKey,
                 sources = sourceParam,
@@ -51,16 +34,18 @@ class NewsRepository(
 
             )
 
-            if(response.status=="ok"&& response.articles.isEmpty()){
-                return emptyList();
-            }
-
             if(response.status!="ok"){
                 throw Exception("Error")
             }
 
+            val articles = response.articles?:emptyList()
 
-            val noticiasSanitizadas = response.articles.map { noticia ->
+            if(articles.isEmpty()){
+                return emptyList()
+            }
+
+
+            val noticiasSanitizadas = articles.map { noticia ->
                 noticia.copy(
                     url = noticia.url.trim(),
                     urlToImage = noticia.urlToImage?.trim()

@@ -35,7 +35,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
     val fuente by viewModel.fuente.collectAsStateWithLifecycle()
     val categoria by viewModel.categoria.collectAsStateWithLifecycle()
     val pais by viewModel.pais.collectAsStateWithLifecycle()
-
+    val idioma by viewModel.idioma.collectAsStateWithLifecycle()
     var mostrarConfig by remember { mutableStateOf(false) }
 
 
@@ -75,15 +75,15 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
 
                     OutlinedTextField(
                         value = busqueda,
-                        onValueChange = { viewModel.actualizarFiltros(it, fuente, categoria, pais) },
+                        onValueChange = { viewModel.actualizarFiltros(it, fuente, categoria, pais,idioma) },
                         label = { Text("Texto (q)") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = fuente,
-                        onValueChange = { viewModel.actualizarFiltros(busqueda, it, categoria, pais) },
-                        label = { Text("Fuente ID (ej: techcrunch, google-news)") },
+                        onValueChange = { viewModel.actualizarFiltros(busqueda, it, categoria, pais,idioma) },
+                        label = { Text("Fuente") },
                         supportingText = { Text("Si usas Fuente, se ignora País y Categoría") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -93,7 +93,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
 
                     OutlinedTextField(
                         value = pais,
-                        onValueChange = { viewModel.actualizarFiltros(busqueda, fuente, categoria, it) },
+                        onValueChange = { viewModel.actualizarFiltros(busqueda, fuente, categoria, it,idioma) },
                         label = { Text("País (ej: us, es, gb)") },
                         enabled = habilitarResto,
                         modifier = Modifier.fillMaxWidth()
@@ -101,7 +101,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
 
                     OutlinedTextField(
                         value = categoria,
-                        onValueChange = { viewModel.actualizarFiltros(busqueda, fuente, it, pais) },
+                        onValueChange = { viewModel.actualizarFiltros(busqueda, fuente, it, pais,idioma) },
                         label = { Text("Categoría (ej: technology, sports)") },
                         enabled = habilitarResto,
                         modifier = Modifier.fillMaxWidth()

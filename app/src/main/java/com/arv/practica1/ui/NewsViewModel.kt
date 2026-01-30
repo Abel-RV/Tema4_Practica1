@@ -38,16 +38,22 @@ class NewsViewModel(application: Application): AndroidViewModel(application){
     private val _fuente = MutableStateFlow("")
     val fuente = _fuente.asStateFlow()
 
+    private val _idioma = MutableStateFlow("")
+    val idioma = _idioma.asStateFlow()
+
     fun actualizarFiltros(
         q: String,
         s: String,
         c: String,
-        p: String
+        p: String,
+        l:String
     ){
         _busqueda.value =q
         _fuente.value = s
         _categoria.value=c
-        _pais.value=p
+        _pais.value= p
+        _idioma.value=l
+
     }
 
     fun cargarNoticas(apiKey: String){
@@ -59,7 +65,8 @@ class NewsViewModel(application: Application): AndroidViewModel(application){
                     q=_busqueda.value,
                     sources = _fuente.value,
                     category = _categoria.value,
-                    country = _pais.value
+                    country = _pais.value,
+                    language = _idioma.value
                 )
                 _estado.value= EstadoNoticias.Exito(noticias)
             }catch (e: Exception){
