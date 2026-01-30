@@ -10,7 +10,10 @@ import java.util.Locale
 interface NewsApiService {
     @GET("top-headlines")
     suspend fun getTopHeadlines(
-        @Query("sources") sources: String,
-        @Query("apiKey") apiKey: String
+        @Query("apiKey") apiKey: String,
+        @Query("sources") sources: String? = null,
+        @Query("country") country: String? = null,
+        @Query("category") category: String? = null,
+        @Query("q") q: String? = null
     ): NewsResponse
 }
