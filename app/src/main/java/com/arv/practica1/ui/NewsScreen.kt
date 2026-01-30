@@ -33,7 +33,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
 
     val busqueda by viewModel.busqueda.collectAsStateWithLifecycle()
     val fuente by viewModel.fuente.collectAsStateWithLifecycle()
-    val categoria by viewModel.pais.collectAsStateWithLifecycle()
+    val categoria by viewModel.categoria.collectAsStateWithLifecycle()
     val pais by viewModel.pais.collectAsStateWithLifecycle()
 
     var mostrarConfig by remember { mutableStateOf(false) }

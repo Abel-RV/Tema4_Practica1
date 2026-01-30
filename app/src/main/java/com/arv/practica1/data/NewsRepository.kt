@@ -1,6 +1,6 @@
 package com.arv.practica1.data
 
-import android.R.attr.category
+
 import com.arv.practica1.model.Noticia
 import com.arv.practica1.network.NewsApiService
 import kotlinx.coroutines.flow.first
