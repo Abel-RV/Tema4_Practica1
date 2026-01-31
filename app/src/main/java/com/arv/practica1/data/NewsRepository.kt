@@ -4,8 +4,6 @@ package com.arv.practica1.data
 import com.arv.practica1.model.Noticia
 import com.arv.practica1.network.NewsApiService
 import kotlinx.coroutines.flow.first
-import okio.Source
-import org.intellij.lang.annotations.Language
 
 class NewsRepository(
     private val apiService: NewsApiService,
@@ -20,26 +18,13 @@ class NewsRepository(
         q: String? = null
     ): List<Noticia> {
         return try {
-            // Convertir strings vacíos o solo espacios en null
-            val cleanSources = sources?.trim()?.takeIf { it.isNotEmpty() }
-            val cleanCountry = country?.trim()?.takeIf { it.isNotEmpty() }
-            val cleanCategory = category?.trim()?.takeIf { it.isNotEmpty() }
-            val cleanLanguage = language?.trim()?.takeIf { it.isNotEmpty() }
-            val cleanQ = q?.trim()?.takeIf { it.isNotEmpty() }
+            val hasSource = !sources.isNullOrBlank()
 
-            // Si se usa sources, country, category y language deben ser null
-            val hasSource = cleanSources != null
-            val sourceParam = cleanSources
-            val countryParam = if (hasSource) null else cleanCountry
-            val categoryParam = if (hasSource) null else cleanCategory
-            val languageParam = if (hasSource) null else cleanLanguage
-
-            println("DEBUG - Parámetros de búsqueda:")
-            println("  sources: $sourceParam")
-            println("  country: $countryParam")
-            println("  category: $categoryParam")
-            println("  language: $languageParam")
-            println("  q: $cleanQ")
+            val sourceParam = if (hasSource) sources else null
+            val countryParam = if (hasSource) null else country?.ifBlank { null }
+            val categoryParam = if (hasSource) null else category?.ifBlank { null }
+            val languageParam = if (hasSource) null else language?.ifBlank { null }
+            val qParam = q?.ifBlank { null }
 
             val response = apiService.getTopHeadlines(
                 apiKey = apiKey,
@@ -47,23 +32,17 @@ class NewsRepository(
                 country = countryParam,
                 category = categoryParam,
                 language = languageParam,
-                q = cleanQ
+                q = qParam
             )
-
-            if(response.status!="ok"){
-                val errorMsg = response.message ?: "Error desconocido"
-                println("ERROR API - code: ${response.code}, message: $errorMsg")
-                throw Exception("Error de API: $errorMsg")
+            if (response.status != "ok") {
+                throw Exception(response.message ?: "Error desconocido de la API")
             }
 
-            val articles = response.articles?:emptyList()
+            val articles = response.articles ?: emptyList()
 
-            if(articles.isEmpty()){
-                println("ADVERTENCIA - No se encontraron artículos")
+            if (articles.isEmpty()) {
                 return emptyList()
             }
-
-            println("ÉXITO - Se encontraron ${articles.size} artículos")
 
             val noticiasSanitizadas = articles.map { noticia ->
                 noticia.copy(
@@ -71,16 +50,16 @@ class NewsRepository(
                     urlToImage = noticia.urlToImage?.trim()
                 )
             }
+
             noticiaDao.borrarTodas()
             noticiaDao.insertar(noticiasSanitizadas)
             noticiasSanitizadas
+
         } catch (e: Exception) {
-            // Fallback a caché solo si hay datos guardados
-            println("EXCEPCIÓN - ${e.message}")
             val cached = noticiaDao.obtenerTodas().first()
             if (cached.isNotEmpty()) {
-                println("Usando caché tras error: ${e.message}",
-                    return cached)
+                println("Usando caché tras error: ${e.message}")
+                return cached
             } else {
                 println("Error crítico (sin caché): ${e.message}")
                 throw e
