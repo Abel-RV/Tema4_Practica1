@@ -20,32 +20,50 @@ class NewsRepository(
         q: String? = null
     ): List<Noticia> {
         return try {
-            val hasSource = !sources.isNullOrBlank()
-            val sourceParam = if (hasSource) sources else null
-            val countryParam = if(hasSource) null else country?.ifBlank { null }
-            val categoryParam = if ( hasSource) null else category?.ifBlank { null }
-            val languageParam = if(hasSource) null else language?.ifBlank { null }
-            val qParam= q?.ifBlank { null }
+            // Convertir strings vacíos o solo espacios en null
+            val cleanSources = sources?.trim()?.takeIf { it.isNotEmpty() }
+            val cleanCountry = country?.trim()?.takeIf { it.isNotEmpty() }
+            val cleanCategory = category?.trim()?.takeIf { it.isNotEmpty() }
+            val cleanLanguage = language?.trim()?.takeIf { it.isNotEmpty() }
+            val cleanQ = q?.trim()?.takeIf { it.isNotEmpty() }
+
+            // Si se usa sources, country, category y language deben ser null
+            val hasSource = cleanSources != null
+            val sourceParam = cleanSources
+            val countryParam = if (hasSource) null else cleanCountry
+            val categoryParam = if (hasSource) null else cleanCategory
+            val languageParam = if (hasSource) null else cleanLanguage
+
+            println("DEBUG - Parámetros de búsqueda:")
+            println("  sources: $sourceParam")
+            println("  country: $countryParam")
+            println("  category: $categoryParam")
+            println("  language: $languageParam")
+            println("  q: $cleanQ")
+
             val response = apiService.getTopHeadlines(
                 apiKey = apiKey,
                 sources = sourceParam,
                 country = countryParam,
                 category = categoryParam,
                 language = languageParam,
-                q = qParam
-
+                q = cleanQ
             )
 
             if(response.status!="ok"){
-                throw Exception("Error")
+                val errorMsg = response.message ?: "Error desconocido"
+                println("ERROR API - code: ${response.code}, message: $errorMsg")
+                throw Exception("Error de API: $errorMsg")
             }
 
             val articles = response.articles?:emptyList()
 
             if(articles.isEmpty()){
+                println("ADVERTENCIA - No se encontraron artículos")
                 return emptyList()
             }
 
+            println("ÉXITO - Se encontraron ${articles.size} artículos")
 
             val noticiasSanitizadas = articles.map { noticia ->
                 noticia.copy(
@@ -57,11 +75,12 @@ class NewsRepository(
             noticiaDao.insertar(noticiasSanitizadas)
             noticiasSanitizadas
         } catch (e: Exception) {
-            // 7. Fallback a caché solo si hay datos guardados
+            // Fallback a caché solo si hay datos guardados
+            println("EXCEPCIÓN - ${e.message}")
             val cached = noticiaDao.obtenerTodas().first()
             if (cached.isNotEmpty()) {
-                println("Usando caché tras error: ${e.message}")
-                return cached
+                println("Usando caché tras error: ${e.message}",
+                    return cached)
             } else {
                 println("Error crítico (sin caché): ${e.message}")
                 throw e

@@ -38,6 +38,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
     val idioma by viewModel.idioma.collectAsStateWithLifecycle()
     var mostrarConfig by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.cargarNoticas(apiKey)
@@ -149,7 +150,16 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
                         } else {
                             LazyColumn {
                                 items(currentEstado.noticias) { noticia ->
-                                    NoticiaItem(noticia = noticia)
+                                    NoticiaItem(
+                                        noticia = noticia,
+                                        onClick = {
+                                            // Abrir navegador con la URL
+                                            if (!noticia.url.isNullOrBlank()) {
+                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(noticia.url))
+                                                context.startActivity(intent)
+                                            }
+                                        }
+                                    )
                                     HorizontalDivider()
                                 }
                             }
@@ -163,7 +173,7 @@ fun NewsScreen(viewModel: NewsViewModel,apiKey:String){
 
 
 @Composable
-fun NoticiaItem(noticia: Noticia){
+fun NoticiaItem(noticia: Noticia,onClick:()-> Unit){
     Row(
         modifier = Modifier
             .fillMaxWidth()
